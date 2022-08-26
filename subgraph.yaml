@@ -1,0 +1,161 @@
+specVersion: 0.0.3
+schema:
+  file: ./schema.graphql
+dataSources:
+
+  - kind: ethereum/contract
+    name: Reserves
+    network: godwoken
+    source:
+      abi: LendingPoolConfigurator
+      address: '0x19c979637AC15A3D3E2668578694924015A5dE0f'
+      startBlock: 70538
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/reserves.ts
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: LendingPool
+          file: ./abis/LendingPool.json
+        - name: LendingPoolConfigurator
+          file: ./abis/LendingPoolConfigurator.json
+      entities:
+        - Reserves
+        - ERC20
+        - LendingPoolConfigurator
+      eventHandlers:
+        - event: ReserveInitialized(indexed address,indexed address,address,address,address)
+          handler: ReserveInitializedHandler
+        - event: CollateralConfigurationChanged(indexed address,uint256,uint256,uint256)
+          handler: CollateralConfigurationChangedHandler
+        - event: BorrowingEnabledOnReserve(indexed address,bool)
+          handler: BorrowingEnabledOnReserveHandler
+        - event: ReserveFactorChanged(indexed address,uint256)
+          handler: ReserveFactorChangedHandler
+        - event: BorrowingDisabledOnReserve(indexed address)
+          handler: BorrowingDisabledOnReserveHandler
+        - event: ReserveActivated(indexed address)
+          handler: ReserveActivatedHandler
+        - event: ReserveDeactivated(indexed address)
+          handler: ReserveDeactivatedHandler
+        - event: ReserveDecimalsChanged(indexed address,uint256)
+          handler: ReserveDecimalsChangedHandler
+        - event: ReserveFrozen(indexed address)
+          handler: ReserveFrozenHandler
+        - event: ReserveInterestRateStrategyChanged(indexed address,address)
+          handler: ReserveInterestRateStrategyChangedHandler
+        - event: ReserveUnfrozen(indexed address)
+          handler: ReserveUnfrozenHandler
+        - event: StableRateDisabledOnReserve(indexed address)
+          handler: StableRateDisabledOnReserveHandler
+        - event: StableRateEnabledOnReserve(indexed address)
+          handler: StableRateEnabledOnReserveHandler
+        - event: BorrowCapChanged(indexed address,uint256)
+          handler: BorrowCapChangedHandler
+        - event: DepositCapChanged(indexed address,uint256)
+          handler: DepositCapChangedHandler
+          
+  - kind: ethereum/contract
+    name: LendingPool
+    network: godwoken
+    source:
+      abi: LendingPool
+      startBlock: 70538
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/lendingPool.ts
+      abis:
+        - name: IERC20Detailed
+          file: ./abis/IERC20Detailed.json
+        - name: LendingPool
+          file: ./abis/LendingPool.json
+        - name: LendingPoolConfigurator
+          file: ./abis/LendingPoolConfigurator.json
+      entities:
+        - LendingPool
+        - IERC20Detailed
+        - LendingPoolConfigurator
+        - DepositAsset
+      eventHandlers:
+        - event: Deposit(indexed address,address,indexed address,uint256,indexed uint16)
+          handler: depositToPoolHandler
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256)
+          handler: withdrawFromPoolHandler
+        - event: Borrow(indexed address,address,indexed address,uint256,uint256,uint256,indexed uint16)
+          handler: borrowFromPoolHandler
+        - event: Repay(indexed address,indexed address,indexed address,uint256)
+          handler: repayFromPoolHandler
+        - event: ReserveUsedAsCollateralEnabled(indexed address,indexed address)
+          handler: setAssetAsCollateralEnabled
+        - event: ReserveUsedAsCollateralDisabled(indexed address,indexed address)
+          handler: setAssetAsCollateralDisabled
+        - event: Swap(indexed address,indexed address,uint256)
+          handler: swapBorrowMode
+        - event: LiquidationCall(indexed address,indexed address,indexed address,uint256,uint256,address,bool)
+          handler: liquidationCall
+
+  - kind: ethereum/contract
+    name: LendingPoolAddressesProvider
+    network: godwoken
+    source:
+      abi: LendingPoolAddressesProvider
+      startBlock: 70538
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/lendingPoolAddressesProvider.ts
+      abis:
+        - name: LendingPoolAddressesProvider
+          file: ./abis/LendingPoolAddressesProvider.json
+      entities:
+        - Registry
+      eventHandlers:
+        - event: PriceOracleUpdated(indexed address)
+          handler: changePriceOracle
+
+  - kind: ethereum/contract
+    name: DIAOracle
+    network: godwoken
+    source:
+      abi: DIAOracle
+      address: '0xc806a37164860913FBfF8D013986229724D6c418'
+      startBlock: 70538
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/DIAOracle.ts
+      abis:
+        - name: DIAOracle
+          file: ./abis/DIAOracle.json
+      entities:
+        - DIAPrice
+      eventHandlers:
+        - event: OracleUpdate(string,uint128,uint128)
+          handler: updatePriceOracle
+
+templates:
+  - kind: ethereum/contract
+    name: Tokens
+    network: godwoken
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/mappings/tokens.ts
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      entities:
+        - ERC20
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: tokenTransferHandler  
