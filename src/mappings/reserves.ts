@@ -19,7 +19,7 @@ import {
   DepositCapChanged,
   BorrowCapChanged,
 } from "../../generated/LendingPool/LendingPoolConfigurator";
-import { ERC20 } from "../../generated/Tokens/ERC20";
+import { ERC20 } from "../../generated/Reserves/ERC20";
 import { createOrLoadRegistry } from "./lendingPoolAddressesProvider";
 
 // tokenType

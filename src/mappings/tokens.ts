@@ -1,6 +1,6 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { ETH_ZERO_ADDRESS } from "../constants";
-import { ERC20, Transfer } from "../../generated/Tokens/ERC20";
+import { ERC20, Transfer } from "../../generated/Reserves/ERC20";
 
 import * as Schemas from "../../generated/schema";
 import { updateBlock } from "../utils/block";
